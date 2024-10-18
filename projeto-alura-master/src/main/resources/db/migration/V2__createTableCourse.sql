@@ -1,0 +1,12 @@
+CREATE TABLE Course (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    name VARCHAR(50) NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    description TEXT,
+    inactiveDate DATETIME DEFAULT NULL,
+    instructor_id BIGINT(20),
+    status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
+    PRIMARY KEY (id),
+    FOREIGN KEY (instructor_id) REFERENCES User(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
