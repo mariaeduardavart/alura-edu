@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.alura.ProjetoAlura.exceptions.CourseNotFoundException;
 import br.com.alura.ProjetoAlura.exceptions.ForbiddenOperationException;
 import br.com.alura.ProjetoAlura.exceptions.InstructorNotFoundException;
 import jakarta.validation.Valid;
@@ -41,11 +42,17 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/course/{code}/inactive")
-    public ResponseEntity createCourse(@PathVariable("code") String courseCode) {
-        // TODO: Implementar a Questão 2 - Inativação de Curso aqui...
-
-        return ResponseEntity.ok().build();
+    @PostMapping("/{code}/inactive")
+    public ResponseEntity<?> deactivateCourse(@PathVariable("code") String courseCode) {
+        try {
+            courseService.deactivateCourse(courseCode);
+            return ResponseEntity.ok().build();
+        } catch (CourseNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "Course not found."));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "An unexpected error occurred. " + ex.getMessage()));
+        }
     }
-
 }

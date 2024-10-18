@@ -2,6 +2,8 @@ package br.com.alura.ProjetoAlura.course;
 
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.alura.ProjetoAlura.exceptions.CourseNotFoundException;
 import br.com.alura.ProjetoAlura.exceptions.ForbiddenOperationException;
 import br.com.alura.ProjetoAlura.exceptions.InstructorNotFoundException;
 
@@ -81,6 +84,30 @@ class CourseControllerTest {
                 .content(objectMapper.writeValueAsString(newCourseDTO)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error").value("Operation not allowed."));
+    }
+
+    @Test
+    void deactivateCourse_shouldReturnNotFoundWhenCourseDoesNotExist() throws Exception {
+        String courseCode = "nonexistentcourse";
+
+        doThrow(new CourseNotFoundException("Course not found."))
+                .when(courseService).deactivateCourse(courseCode);
+
+        mockMvc.perform(post("/course/{code}/inactive", courseCode)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Course not found."));
+    }
+
+    @Test
+    void deactivateCourse_shouldReturnOkWhenCourseIsInactive() throws Exception {
+        String courseCode = "java2023";
+
+        doNothing().when(courseService).deactivateCourse(courseCode);
+
+        mockMvc.perform(post("/course/{code}/inactive", courseCode)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
 }

@@ -56,12 +56,13 @@ public class CourseService {
     }
 
     @Transactional
-    public void deactivateCourse(Long courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(CourseNotFoundException::new);
+    public void deactivateCourse(String courseCode) {
+        Course course = courseRepository.findByCode(courseCode)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found."));
 
         course.setStatus(CourseStatus.INACTIVE);
         course.setInactiveDate(LocalDateTime.now());
         courseRepository.save(course);
     }
+
 }
