@@ -50,6 +50,10 @@ public class Course {
 
     private LocalDateTime inactiveDate;
 
+    public boolean isActive() {
+        return this.status == CourseStatus.ACTIVE;
+    }
+
     public Course() {
     }
 

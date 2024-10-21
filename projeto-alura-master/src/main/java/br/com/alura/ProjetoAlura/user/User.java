@@ -1,9 +1,14 @@
 package br.com.alura.ProjetoAlura.user;
 
-import br.com.alura.ProjetoAlura.util.EncryptUtil;
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+
+import br.com.alura.ProjetoAlura.util.EncryptUtil;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class User {
@@ -22,7 +27,8 @@ public class User {
     private String password;
 
     @Deprecated
-    public User() {}
+    public User() {
+    }
 
     public User(String name, String email, Role role, String password) {
         this.name = name;
@@ -33,6 +39,10 @@ public class User {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
