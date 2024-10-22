@@ -1,8 +1,10 @@
 package br.com.alura.ProjetoAlura.registration;
 
 import java.time.LocalDateTime;
+import java.util.List; // Importação correta
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,7 @@ import br.com.alura.ProjetoAlura.course.CourseRepository;
 import br.com.alura.ProjetoAlura.exceptions.CourseInactiveException;
 import br.com.alura.ProjetoAlura.exceptions.CourseNotFoundException;
 import br.com.alura.ProjetoAlura.exceptions.DuplicateRegistrationException;
+import br.com.alura.ProjetoAlura.exceptions.RegistrationReportException;
 import br.com.alura.ProjetoAlura.exceptions.UserNotFoundException;
 import br.com.alura.ProjetoAlura.user.User;
 import br.com.alura.ProjetoAlura.user.UserRepository;
@@ -31,7 +34,6 @@ public class RegistrationService {
 
     @Transactional
     public Registration registerStudent(NewRegistrationDTO newRegistration) {
-
         Course course = courseRepository.findByCode(newRegistration.getCourseCode())
                 .orElseThrow(() -> new CourseNotFoundException("Course not found."));
 
@@ -47,7 +49,6 @@ public class RegistrationService {
         }
 
         Registration registration = convertDtoToEntity(newRegistration, user, course);
-
         return registrationRepository.save(registration);
     }
 
@@ -57,5 +58,17 @@ public class RegistrationService {
         registration.setCourse(course);
         registration.setRegistrationDate(LocalDateTime.now());
         return registration;
+    }
+
+    public List<RegistrationReportItem> getMostPopularCourses() {
+        try {
+            return registrationRepository.findMostPopularCourses();
+        } catch (DataAccessException e) {
+            // Lançar exceção personalizada para erro de acesso ao banco de dados
+            throw new RegistrationReportException("Erro ao acessar o banco de dados ao buscar cursos populares", e);
+        } catch (Exception e) {
+            // Lançar exceção personalizada para erros inesperados
+            throw new RegistrationReportException("Ocorreu um erro inesperado ao buscar cursos populares", e);
+        }
     }
 }

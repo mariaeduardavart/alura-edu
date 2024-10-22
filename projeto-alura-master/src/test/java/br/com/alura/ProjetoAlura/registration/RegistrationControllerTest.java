@@ -1,5 +1,8 @@
 package br.com.alura.ProjetoAlura.registration;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -8,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -109,5 +113,23 @@ class RegistrationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newRegistrationDTO)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void report_shouldReturnListOfMostPopularCourses() throws Exception {
+        RegistrationReportItem reportItem1 = new RegistrationReportItem("Java for Beginners", "java", "John Doe", "john.doe@example.com", 10L);
+        RegistrationReportItem reportItem2 = new RegistrationReportItem("Spring for Beginners", "spring", "John Doe", "john.doe@example.com", 9L);
+        List<RegistrationReportItem> reportItems = Arrays.asList(reportItem1, reportItem2);
+
+        when(registrationService.getMostPopularCourses()).thenReturn(reportItems);
+
+        mockMvc.perform(get("/registration/report")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].courseName").value("Java for Beginners"))
+                .andExpect(jsonPath("$[0].instructorName").value("John Doe"))
+                .andExpect(jsonPath("$[0].totalRegistrations").value(10))
+                .andExpect(jsonPath("$[1].courseName").value("Spring for Beginners"))
+                .andExpect(jsonPath("$[1].totalRegistrations").value(9));
     }
 }

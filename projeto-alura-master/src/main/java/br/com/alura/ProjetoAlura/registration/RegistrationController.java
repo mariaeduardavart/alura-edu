@@ -1,6 +1,5 @@
 package br.com.alura.ProjetoAlura.registration;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.alura.ProjetoAlura.exceptions.CourseInactiveException;
 import br.com.alura.ProjetoAlura.exceptions.CourseNotFoundException;
 import br.com.alura.ProjetoAlura.exceptions.DuplicateRegistrationException;
+import br.com.alura.ProjetoAlura.exceptions.RegistrationReportException;
 import br.com.alura.ProjetoAlura.exceptions.UserNotFoundException;
 import jakarta.validation.Valid;
 
@@ -62,37 +62,21 @@ public class RegistrationController {
         }
     }
 
-    @GetMapping("/registration/report")
+    @GetMapping("/report")
     public ResponseEntity<List<RegistrationReportItem>> report() {
-        List<RegistrationReportItem> items = new ArrayList<>();
-
-        // TODO: Implementar a Questão 4 - Relatório de Cursos Mais Acessados aqui...
-        // Dados fictícios abaixo que devem ser substituídos
-        items.add(new RegistrationReportItem(
-                "Java para Iniciantes",
-                "java",
-                "Charles",
-                "charles@alura.com.br",
-                10L
-        ));
-
-        items.add(new RegistrationReportItem(
-                "Spring para Iniciantes",
-                "spring",
-                "Charles",
-                "charles@alura.com.br",
-                9L
-        ));
-
-        items.add(new RegistrationReportItem(
-                "Maven para Avançados",
-                "maven",
-                "Charles",
-                "charles@alura.com.br",
-                9L
-        ));
-
-        return ResponseEntity.ok(items);
+        try {
+            List<RegistrationReportItem> items = registrationService.getMostPopularCourses();
+            logger.info("Retrieved report for most popular courses with {} registrations.", items.size());
+            return ResponseEntity.ok(items);
+        } catch (RegistrationReportException ex) {
+            logger.error("Error retrieving report of most popular courses: {}", ex.getMessage(), ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.emptyList());  // Retorna uma lista vazia em caso de erro
+        } catch (Exception ex) {
+            logger.error("Unexpected error while retrieving report: {}", ex.getMessage(), ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.emptyList());  // Retorna uma lista vazia para qualquer erro inesperado
+        }
     }
 
 }
