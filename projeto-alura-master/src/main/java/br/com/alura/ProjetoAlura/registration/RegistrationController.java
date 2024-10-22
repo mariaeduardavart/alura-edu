@@ -36,9 +36,7 @@ public class RegistrationController {
         try {
             Registration createdRegistration = registrationService.registerStudent(newRegistration);
             logger.info("Registration created successfully for student: {}", newRegistration.getStudentEmail());
-
             return ResponseEntity.status(HttpStatus.CREATED).body(createdRegistration);
-
         } catch (CourseNotFoundException ex) {
             logger.warn("Course not found: {}", ex.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -71,12 +69,11 @@ public class RegistrationController {
         } catch (RegistrationReportException ex) {
             logger.error("Error retrieving report of most popular courses: {}", ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());  // Retorna uma lista vazia em caso de erro
+                    .body(Collections.emptyList());
         } catch (Exception ex) {
             logger.error("Unexpected error while retrieving report: {}", ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());  // Retorna uma lista vazia para qualquer erro inesperado
+                    .body(Collections.emptyList());
         }
     }
-
 }

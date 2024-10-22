@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -53,18 +54,29 @@ class CourseControllerTest {
 
     @Test
     void createCourse_shouldReturnCreatedWhenCourseIsValid() throws Exception {
-        NewCourseDTO newCourseDTO = new NewCourseDTO();
-        newCourseDTO.setName("Java Course");
-        newCourseDTO.setCode("java2023");
-        newCourseDTO.setDescription("Complete Java Course.");
-        newCourseDTO.setInstructorEmail("instructor@alura.com");
 
-        when(courseService.createCourse(newCourseDTO)).thenReturn(new Course());
+        NewCourseDTO newCourseDTO = new NewCourseDTO();
+        newCourseDTO.setName("Test Course");
+        newCourseDTO.setCode("testcourse");
+        newCourseDTO.setDescription("Test Course Description");
+        newCourseDTO.setInstructorEmail("instrutor2@example.com");
+
+        Course createdCourse = new Course();
+        createdCourse.setName("Test Course");
+        createdCourse.setCode("testcourse");
+        createdCourse.setDescription("Test Course Description.");
+
+        when(courseService.createCourse(any(NewCourseDTO.class))).thenReturn(createdCourse);
 
         mockMvc.perform(post("/course/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newCourseDTO)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value(createdCourse.getCode()))
+                .andExpect(jsonPath("$.name").value(createdCourse.getName()))
+                .andExpect(jsonPath("$.description").value(createdCourse.getDescription()));
+
+        verify(courseService).createCourse(any(NewCourseDTO.class));
     }
 
     @Test
